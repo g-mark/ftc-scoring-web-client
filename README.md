@@ -9,3 +9,4 @@ To do
   - matches with surrogates
 - apply new styling
 - explain how to configure & deploy
+- convert inline html creation with templates
