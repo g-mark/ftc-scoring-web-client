@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+	<p>Division: <input id="division" type="text" value="1"></p>
+	<p>Number of teams: <input id="num-teams" type="text" value="33"></p>
+	<p><button id="btn-generate">Generate</button></p>
+	<p>Copy &amp; paste into a .txt file, import into scoring system as a scoring data file:</p>
+	<pre id="results" style="border: 1px solid #444; padding:1em;"></pre>
+
+	<script type="text/javascript">
+		var generate = (function() {
+
+			var adj = ['Adept', 'Advanced', 'Artificial', 'Automated', 'Automatic', 'Autonomous', 'Bio-Electrionic', 'Bionic', 'Compact', 'Computerized', 'Conscious', 'Cybernated', 'Cybernetic', 'Digital', 'Dynamic', 'Efficient', 'Electronic', 'Essential', 'Exceptional', 'Experimental', 'Extra-Terrestrial', 'Extraterrestial', 'Extreme', 'General', 'Generic', 'Global', 'High-Powered', 'Highpowered', 'Humanoid', 'Independent', 'Integrated', 'Intelligent', 'Main', 'Mechanical', 'Mechanized', 'Motorized', 'Neohuman', 'Nuclear', 'Perceptive', 'Personal', 'Preliminary', 'Primary', 'Prime', 'Primitive', 'Programmed', 'Rational', 'Reactive', 'Responsive', 'Robotic', 'Secondary', 'Self-Aware', 'Self-Regulaing', 'Self-Reliant', 'Self-Sufficient', 'Sensitive', 'Sensory', 'Solar', 'Strategic', 'Super', 'Supreme', 'Synchronized', 'Temporary', 'Ultimate', 'Unified', 'Universal'];
+			var lorem = [ 'Lorem', 'Ipsum', 'Dolor', 'Sit', 'Amet', 'Consectetur', 'Adipiscing', 'Elit', 'Vivamus', 'Faucibus', 'Augue', 'Sollicitudin', 'Imperdiet', 'Erat', 'Vitae', 'Feugiat', 'Lorem', 'Fusce', 'Felis', 'Est', 'Duis', 'Tristique', 'Justo', 'Congue', 'Mattis', 'Nullam', 'Accumsan', 'Leo', 'Quis', 'Sapien', 'Egestas', 'Tempus', 'Quis', 'Arcu', 'Donec', 'Molestie', 'Metus', 'Luctus', 'Ligula', 'Nullam', 'Sagittis', 'Sapien', 'Non', 'Viverra', 'Magna', 'Fusce', 'Non', 'Feugiat', 'Libero', 'Quisque', 'Imperdiet', 'Eleifend', 'Egestas', 'Aliquam', 'Quantum', 'Volutpat', 'Proin', 'Est', 'Ornare', 'Nano', 'Tortor', 'Non', 'Blandit', 'Ipsum', 'Sed', 'Molestie', 'Lorem', 'Vitae', 'Fringilla', 'Congue', 'Mauris', 'Pulvinar', 'Quam', 'Faucibus', 'Eleifend', 'Dolor', 'Sapien', 'Condimentum', 'Velit', 'Dapibus', 'Leo', 'Nulla', 'Tortor' ];
+			var prefix = [ 'The ', 'Team ', '' ];
+			var schooltype = [ 'Middle School', 'High School', 'Community', 'Club', 'Army', 'Navy', 'Center' ];
+			var townprefix = [ 'East', 'North', 'West', 'South', 'Lake', 'Little', 'Greater' ];
+			var townsuffix = [ 'ville', ' Hollow', 'haven', 'field', 'den', 'ton', ' Square', ' Shire', ' Falls' ];
+
+			var usedNumbers = {};
+			var usedNames = {};
+
+			return function() {
+				var number, name, school, town, state, country;
+
+				do {
+					number = '';
+					var digits = 2 + Math.floor(Math.random() * 4 );
+					while ( digits-- ) {
+						number += '0123456789'[ Math.floor(Math.random() * 10) ];
+					}
+				} while ( typeof usedNumbers[number] !== 'undefined' );
+				usedNumbers[number] = true;
+
+				do {
+					name = prefix[ Math.floor(Math.random() * 3) ];
+					if ( Math.random() >= 0.5 ) {
+						name += adj[ Math.floor(Math.random() * adj.length) ] + ' ';
+					}
+					name += lorem[ Math.floor(Math.random() * lorem.length) ];
+					if ( Math.random() >= 0.5 ) {
+						name += ' ' + lorem[ Math.floor(Math.random() * lorem.length) ];
+					}
+					if ( Math.random() >= 0.75 ) {
+						name += ' ' + lorem[ Math.floor(Math.random() * lorem.length) ];
+					}
+				} while ( typeof usedNames[name] !== 'undefined' );
+				usedNames[name] = true;
+
+				school = lorem[ Math.floor(Math.random() * lorem.length) ];
+				school += ' ' + lorem[ Math.floor(Math.random() * lorem.length) ];
+				school += ' ' + schooltype[ Math.floor(Math.random() * schooltype.length) ];
+
+				town = '';
+				if ( Math.random() >= 0.5 ) {
+					town += townprefix[ Math.floor(Math.random() * townprefix.length) ] + ' ';
+				}
+				town += lorem[ Math.floor(Math.random() * lorem.length) ];
+				town += townsuffix[ Math.floor(Math.random() * townsuffix.length) ];
+
+				state = '';
+				while ( state.length < 2 ) {
+					state += String.fromCharCode( Math.floor(Math.random() * 26) + 65 );
+				}
+				country = lorem[ Math.floor(Math.random() * lorem.length) ];
+
+				return number + '|' + name + '|' + school + '|' + town + '|' + state + '|' + country + '|false|true|0';
+			};
+		})();
+
+		var e = function(id) { return document.getElementById(id); }
+
+		e('btn-generate').onclick = function() {
+			var division = parseInt( e('division').value );
+			var num = parseInt( e('num-teams').value );
+			if ( !isNaN(num) ) {
+				var results = '';
+				for ( var n = 0; n < num; n++ ) {
+					results += division + '|' + generate() + '\n';
+				}
+				e('results').innerHTML = results;
+			}
+		}
+
+	</script>
+</body>
+</html>

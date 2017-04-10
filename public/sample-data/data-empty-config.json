@@ -1,0 +1,16 @@
+{
+	"name": "",
+	"divisions":
+	[
+		{
+			"name":"Ignored",
+			"sources":{
+				"matches" : "cache/Matches_Empty.html",
+				"rankings":"cache/Rankings_Empty.html",
+				"details":"cache/MatchResultsDetails_Empty.html",
+				"teams":"cache/TeamInfo_Empty.html"
+			}
+		}
+	],
+	"jsv":134
+}

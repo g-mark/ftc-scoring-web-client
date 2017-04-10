@@ -1,0 +1,16 @@
+{
+	"name": "",
+	"divisions":
+	[
+		{
+			"name":"Numerator",
+			"sources":{
+				"matches" : "sample-data/data-fake-just-started-with-teams/Matches_Super_Championship_Numerator.html",
+				"rankings": "sample-data/data-fake-just-started-with-teams/Rankings_Super_Championship_Numerator.html",
+				"details": "sample-data/data-fake-just-started-with-teams/MatchResultsDetails_Super_Championship_Numerator.html",
+				"teams": "sample-data/data-fake-just-started-with-teams/TeamInfo_Super_Championship_Numerator.html"
+			}
+		}
+	],
+	"jsv":134
+}
