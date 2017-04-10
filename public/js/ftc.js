@@ -34,6 +34,7 @@ FTC.prototype = {
 		this.raw = '';
 		this.seq = 0;
 		this.searchTeam = '';
+		this.days = { Sat: 'Saturday', Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday' };
 		
 		this.isLocal = document.location.protocol === 'file:';
 		
@@ -131,7 +132,7 @@ FTC.prototype = {
 					self.division = 0;
 					self.firstLoad();
 				}
-				$('#timestamp').text( new Date().toLocaleString() );
+				$('#timestamp').text( new Date().toLocaleTimeString() );
 				self.refreshData();
 				self.loading( false );
 			},
@@ -213,6 +214,11 @@ FTC.prototype = {
 		if ( which.indexOf('-') !== -1 ) {
 			var split = which.split("-");
 			this.division = split[0];
+			if ( typeof this.data === 'undefined'
+					|| typeof this.data.divisions !== 'object'
+					|| typeof this.data.divisions[this.division] !== 'object' ) {
+				this.division = 0;
+			}
 			this.showing = split[1];
 		}
 		else {
@@ -251,19 +257,53 @@ FTC.prototype = {
 	renderMatches: function() {
 		var data = this.data[ this.division ].data;
 
-		var html = '<table class="matches">';
-		html += '<thead><tr><th>Match</th><th>Red Teams</th><th>Blue Teams</th></tr></thead>';
-		html += '<tbody>';
+		var html = '';
+
+		var emitHeader = function() {
+			html += '<table class="matches">';
+			html += '<thead><tr><th>Match</th>';
+			if ( data && data.matchesHaveTime ) {
+				html += '<th>Time</th>';
+			}
+			if ( data && data.matchesHaveField ) {
+				html += '<th>Field</th>';
+			}
+			html += '<th>Red Teams</th><th>Blue Teams</th></tr></thead>';
+		};
+
 		if ( typeof data === 'object' && typeof data.matchList === 'object' ) {
+			var day = '';
+
+			if ( !data.matchesHaveTime ) {
+				emitHeader();
+				html += '<tbody>';
+			}
+
 			for ( var n = 0; n < data.matchList.length; n++ ) {
 				var matchNum = data.matchList[n];
 				var match = data.matches[matchNum];
+
+				if ( data.matchesHaveTime && match.day != day ) {
+					if ( day !== '' ) {
+						html += '</tbody></table>';
+					}
+					html += '<h4>' + this.days[match.day] + '</h4>';
+					emitHeader();
+					html += '<tbody>';
+					day = match.day;
+				}
 				var trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
 				if ( match.teamNums.includes(this.searchTeam) ) {
 					trClasses += ' team-highlight';
 				}
 				html += '<tr class="' + trClasses + '">';
 				html += '<td>' + match.num + '</td>';
+				if ( data.matchesHaveTime ) {
+					html += '<td>' + (match.time || '') + '</td>';
+				}
+				if ( data.matchesHaveField ) {
+					html += '<td>' + (match.field || '') + '</td>';
+				}
 				html += '<td class="red"><ul class="teams t' + match.red.teams.length + '"><li>' + match.red.teams.join('</li><li>') + '</li></ul></td>';
 				html += '<td class="blue"><ul class="teams t' + match.blue.teams.length + '"><li>' + match.blue.teams.join('</li><li>') + '</li></ul></td>';
 				html += '</tr>';
@@ -353,7 +393,7 @@ FTC.prototype = {
 				}
 				html += '">';
 				html += '<td>' + (team.rank || '&nbsp;') + '</td>';
-				html += '<td><ul class="team-combo"><li>' + (team.teamNum || '&nbsp;') + '</li><li>' + (team.name || '&nbsp;') + '</li></td>';
+				html += '<td><ul class="team-combo"><li>' + (team.teamNum || '&nbsp;') + '</li><li>' + (team.name || '&nbsp;') + '</li></ul></td>';
 				html += '<td>' + (team.qualityPts || '') + '</td><td>' + (team.rankingPts || '') + '</td><td>' + (team.highest || '') + '</td>';
 				html += '<td>' + (team.matchesPlayed || '') + '</td>';
 				html += '</tr>';
@@ -538,12 +578,12 @@ FTC.prototype = {
 			html +=  '<td class="red rpad"><ul class="teams vert t' + match.red.teams.length + '"><li><strong>' + match.red.teams.join('</strong></li><li><strong>') + '</strong></li></ul></td>';
 			html +=  '<td class="blue rpad"><ul class="teams vert t' + match.blue.teams.length + '"><li><strong>' + match.blue.teams.join('</strong></li><li><strong>') + '</strong></li></ul></td>';
 			html +=  '</tr>';
-			html +=  '<tr><td>Total Score</td><td class="red rpad">' + match.red.total + '</td><td class="blue rpad">' + match.blue.total + '</td></tr>';
-			html +=  '<tr><td>Autonomous</td><td class="red rpad">' + match.red.auto + '</td><td class="blue rpad">' + match.blue.auto + '</td></tr>';
-			html +=  '<tr><td>Auto Bonus</td><td class="red rpad">' + match.red.autob + '</td><td class="blue rpad">' + match.blue.autob + '</td></tr>';
-			html +=  '<tr><td>Tele-Op</td><td class="red rpad">' + match.red.tele + '</td><td class="blue rpad">' + match.blue.tele + '</td></tr>';
-			html +=  '<tr><td>End Game</td><td class="red rpad">' + match.red.end + '</td><td class="blue rpad">' + match.blue.end + '</td></tr>';
-			html +=  '<tr><td>Penalties</td><td class="red rpad">' + match.red.pen + '</td><td class="blue rpad">' + match.blue.pen + '</td></tr>';
+			html +=  '<tr><td>Total Score</td><td class="red rpad">' + (match.red.total || '') + '</td><td class="blue rpad">' + (match.blue.total || '') + '</td></tr>';
+			html +=  '<tr><td>Autonomous</td><td class="red rpad">' + (match.red.auto || '') + '</td><td class="blue rpad">' + (match.blue.auto || '') + '</td></tr>';
+			html +=  '<tr><td>Auto Bonus</td><td class="red rpad">' + (match.red.autob || '') + '</td><td class="blue rpad">' + (match.blue.autob || '') + '</td></tr>';
+			html +=  '<tr><td>Tele-Op</td><td class="red rpad">' + (match.red.tele || '') + '</td><td class="blue rpad">' + (match.blue.tele || '') + '</td></tr>';
+			html +=  '<tr><td>End Game</td><td class="red rpad">' + (match.red.end || '') + '</td><td class="blue rpad">' + (match.blue.end || '') + '</td></tr>';
+			html +=  '<tr><td>Penalties</td><td class="red rpad">' + (match.red.pen || '') + '</td><td class="blue rpad">' + (match.blue.pen || '') + '</td></tr>';
 			html +=  '</table>';
 			if ( match.surrogates.length > 0 ) {
 				html += '<p><strong>Note:</strong> * Indicates a surrogate match.  Those matches do NOT count in the rankings</p>';
@@ -570,10 +610,14 @@ FTC.prototype = {
 			var html = '';
 			html += '<div class="detail-header">';
 			html +=  '<h2>Team ' + num + '</h2>';
-			html +=  '<h3>' + team.name + '</h3>';
+			if ( typeof team.name === 'string' ) {
+				html +=  '<h3>' + team.name + '</h3>';
+			}
 			html += '</div>';
 			html += '<div class="detail-body">';
-			html +=  '<p>' + team.school + '<br>' + team.city + ', ' + team.state + ' ' + team.country + '</p>';
+			if ( typeof team.school === 'string' ) {
+				html +=  '<p>' + team.school + '<br>' + (team.city || '') + ', ' + (team.state || '') + ' ' + (team.country || '') + '</p>';
+			}
 
 			if ( team.rank ) {
 				html += '<table class="details">';
@@ -672,34 +716,71 @@ FTC.prototype = {
 			return;
 		}
 
+		// figure out which column for ech data type:
+		var matchCol = 0;
+		var timeCol = -1;
+		var fieldCol = -1;
+		var redCol1 = 1, redCol2;
+		var blueCol1, blueCol2;
+
+		// are match times available?
+		if ( data.header[0].indexOf('Time') !== -1 ) {
+			timeCol = 0;
+			matchCol = 1;
+			redCol1 = 2;
+		}
+
+		// how about field number?
+		if ( data.header[matchCol + 1].indexOf('Field') !== -1 ) {
+			fieldCol = matchCol + 1;
+			redCol1 += 1;
+		}
+
+		// get red & blue columns...
+		redCol2 = redCol1 + 1;
+		while ( data.header[redCol2 + 1].indexOf('Red') !== -1 ) {
+			redCol2 += 1;
+		}
+		blueCol1 = redCol1 + 1;
+		blueCol2 = data.header.length - 1;
+		//TODO: 
+
 		// put the retrieved data in the division object:
 		division.data = division.data || {};
 		division.data.matches = division.data.matches || {};
-		for ( var n = 0; n < data.length; n++ ) {
-			var row = data[n];
+		
+		division.data.matchesHaveTime = (timeCol >= 0);
+		division.data.matchesHaveField = (fieldCol >= 0);
+
+		for ( var n = 0; n < data.rows.length; n++ ) {
+			var row = data.rows[n];
 			if ( row.length < 5 || row.length > 7 ) {
 				continue;
 			}
-			var matchNum;
-			if ( row.length === 5 ) {
-				// qualifying matches with no start time
-				matchNum = 'Q-' + row[0];
-			}
-			else if ( row.length === 6 ) {
-				// qualifying matches with start time
-				matchNum = 'Q-' + row[1];
-			}
-			else if ( row.length === 7 ) {
-				// semi-final or final matches (already have the 'SF-' prefix)
-				matchNum = row[0];
+			var matchNum = row[ matchCol ];
+			if ( matchNum.indexOf('-') === -1 ) {
+				matchNum = 'Q-' + matchNum;
 			}
 			if ( typeof matchNum === 'string' ) {
 				if ( typeof division.data.matches[matchNum] !== 'object' ) {
 					division.data.matches[matchNum] = {}
 				};
 				var match = division.data.matches[matchNum];
-				if ( row.length === 6 ) {
-					match.time = row[0];
+				if ( timeCol >= 0 ) {
+					var dt = row[ timeCol ].match( /(\w+) ([0-9\:]+) (AM|PM)/i );
+					if ( dt.length === 4 ) {
+						match.day = dt[ 1 ];
+						match.time = dt[ 2 ];
+						if ( dt[3] === 'AM' ) {
+							match.time += '&nbsp;a';
+						}
+						else if ( dt[3] === 'PM' ) {
+							match.time += '&nbsp;p';
+						}
+					}
+				}
+				if ( fieldCol >= 0 ) {
+					match.field = row[ fieldCol ];
 				}
 				match.num = matchNum;
 				match.red = match.red || {};
@@ -708,13 +789,12 @@ FTC.prototype = {
 				match.blue.teams = [];
 
 				var surr = [];
-				var start = (row.length === 5) ? 1 : 2;
-				var num = (row.length === 7) ? 3 : 2;
+				var num = (redCol2 - redCol1) + 1;
 				for ( var t = 0; t < num; t++ ) {
-					match.red.teams.push( row[start + t] );
-					match.blue.teams.push( row[start + num + t] );
-					surr.push( row[start + t] );
-					surr.push( row[start + num + t] );
+					match.red.teams.push( row[redCol1 + t] );
+					match.blue.teams.push( row[blueCol1 + t] );
+					surr.push( row[redCol1 + t] );
+					surr.push( row[blueCol1 + t] );
 				}
 				match.teamNums = match.red.teams.concat( match.blue.teams ).map(function(v){ return (v || '').replace('*', ''); });
 
@@ -742,8 +822,8 @@ FTC.prototype = {
 		division.data = division.data || {};
 		division.data.matches = division.data.matches || {};
 		division.data.matchList = division.data.matchList || [];
-		for ( var n = 0; n < data.length; n++ ) {
-			var row = data[n];
+		for ( var n = 0; n < data.rows.length; n++ ) {
+			var row = data.rows[n];
 			// we only care about this html file if it has macth time info
 			//	all the other stuff is taken from the 
 			if ( row.length === 16 ) {
@@ -785,7 +865,7 @@ FTC.prototype = {
 		}
 
 		// if the user is currently viewing the data just loaded, then re-render it:
-		if ( self.selected === index + '-matches' ) {
+		if ( self.selected === index + '-matches' || self.selected === index + '-results' ) {
 			self.render();
 		}
 	},
@@ -801,8 +881,8 @@ FTC.prototype = {
 		// put the retrieved data in the division object:
 		division.data = division.data || {};
 		division.data.teams = division.data.teams || {};
-		for ( var n = 0; n < data.length; n++ ) {
-			var row = data[n];
+		for ( var n = 0; n < data.rows.length; n++ ) {
+			var row = data.rows[n];
 			if ( row.length === 6 ) {
 				var teamNum = row[0];
 				if ( typeof division.data.teams[teamNum] !== 'object' ) {
@@ -835,8 +915,8 @@ FTC.prototype = {
 		// put the retrieved data in the division object:
 		division.data = division.data || {};
 		division.data.teams = division.data.teams || {};
-		for ( var n = 0; n < data.length; n++ ) {
-			var row = data[n];
+		for ( var n = 0; n < data.rows.length; n++ ) {
+			var row = data.rows[n];
 			if ( row.length === 7 ) {
 				var teamNum = row[1];
 				if ( typeof division.data.teams[teamNum] !== 'object' ) {
@@ -867,7 +947,11 @@ FTC.prototype = {
 	 *
 	 * call completion( httpStatusCode, data )
 	 *	status code is 200, 304, 404, or other standard code
-	 *	data is array of row objects or undefined when status !== 200
+	 *	data is an object or undefined when status !== 200
+	 *		{
+	 *			header: [] array of cells in the tables header
+	 *			rows: [] array of rows - each one an array of cells
+	 *		}
 	 */
 	loadHTML: function( source, completion ) {
 		var self = this;
@@ -891,16 +975,28 @@ FTC.prototype = {
 
 					var footer = data.replace( /[\s\S]*<\/TABLE><\/DIV>([\s\S]+)<\/HTML>/g, '$1');
 					var table = data.replace( /[\s\S]*<DIV ALIGN=CENTER><TABLE([\s\S]+)<\/TABLE><\/DIV>([\s\S]+)<\/HTML>/g, '<TABLE$1</TABLE>');
+					
+					var header = [];
+					var thr = table.match( /<TR[^>]*><TH[\s\S]+?<\/TR>/gi );
+					if ( thr && thr.length === 1 ) {
+						header = thr[0].replace( /<TR[^>]*>\s*<TH[^>]*>\s*/i, '')
+								  .replace( /<\/TH><\/TR>/i, '' )
+								  .replace( '&nbsp;', ' ' )
+								  .split( /(?:<\/TH>){0,1}\s*<TH[^>]*>\s*/i );
+					}
 
 					var rows = [];
 					var tr = table.match( /<TR[^>]*><TD[\s\S]+?<\/TR>/gi );
-					var rows = tr.map(function(row) {
-						return row.replace( /<TR[^>]*>\s*<TD[^>]*>\s*/i, '')
-								  .replace( /<\/TD><\/TR>/i, '' )
-								  .split( /(?:<\/TD>){0,1}\s*<TD[^>]*>\s*/i );
-					})
+					if ( tr && tr.length > 0 ) {
+						var rows = tr.map(function(row) {
+							return row.replace( /<TR[^>]*>\s*<TD[^>]*>\s*/i, '')
+									  .replace( /<\/TD><\/TR>/i, '' )
+									  .replace( '&nbsp;', ' ' )
+									  .split( /(?:<\/TD>){0,1}\s*<TD[^>]*>\s*/i );
+						});
+					}
 
-					completion( 200, rows );
+					completion( 200, {header: header, rows: rows} );
 				}
 				else {
 					console.log( 'not modified' );
@@ -909,7 +1005,7 @@ FTC.prototype = {
 				self.loading( false );
 			},
 			error: function(/*jqXHR*/jqXHR, /*String*/ textStatus, /*String*/ errorThrown) {
-				self.error( textStatus + ' : ' + errorThrown + ' while loading ' + baseUrl );
+				self.error( textStatus + ' : ' + errorThrown + ' while loading ' + source.url );
 				completion( 404 );
 				self.loading( false );
 			}
