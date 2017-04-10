@@ -298,7 +298,7 @@ FTC.prototype = {
 					html += '<tbody>';
 				}
 				var trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
-				if ( match.teamNums.includes(this.searchTeam) ) {
+				if ( typeof(this.searchTeam) === 'string' && match.teamNums.includes(this.searchTeam) ) {
 					trClasses += ' team-highlight';
 				}
 				html += '<tr class="' + trClasses + '">';
@@ -339,7 +339,7 @@ FTC.prototype = {
 				var match = data.matches[matchNum];
 				var className = match.winner === 'B' ? 'blue-won' : (match.winner === 'R' ? 'red-won' : 'tie');
 				var trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
-				if ( match.teamNums.includes(self.searchTeam) ) {
+				if ( typeof(this.searchTeam) === 'string' && match.teamNums.includes(self.searchTeam) ) {
 					trClasses += ' team-highlight';
 				}
 				html += '<tr data-num="' + match.num + '" class="' + trClasses + '">';
@@ -393,7 +393,7 @@ FTC.prototype = {
 			for ( var k in list ) {
 				var team = list[k];
 				html += '<tr id="row' + team.teamNum + '" data-num="' + team.teamNum + '" class="tr' + team.teamNum;
-				if ( team.teamNum == this.searchTeam ) {
+				if ( typeof(this.searchTeam) === 'string' && team.teamNum == this.searchTeam ) {
 					html += ' team-highlight';
 				}
 				html += '">';
@@ -450,7 +450,7 @@ FTC.prototype = {
 			for ( var k in list ) {
 				var team = list[k];
 				html += '<tr id="row' + team.teamNum + '" data-num="' + team.teamNum + '" class="tr' + team.teamNum;
-				if ( team.teamNum == self.searchTeam ) {
+				if ( typeof(this.searchTeam) === 'string' && team.teamNum == self.searchTeam ) {
 					html += ' team-highlight';
 				}
 				html += '">';
@@ -660,8 +660,10 @@ FTC.prototype = {
 	},
 
 	teamSearchChanged: function() {
-		$('#content tr ').removeClass('team-highlight');
-		$('#content .tr' + this.searchTeam).addClass('team-highlight');
+		$('#content tr').removeClass('team-highlight');
+		if ( typeof(this.searchTeam) === 'string' ) {
+			$('#content .tr' + this.searchTeam).addClass('team-highlight');
+		}
 	},
 	
 	highlightTeam: function() {
