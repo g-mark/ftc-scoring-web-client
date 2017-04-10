@@ -1,4 +1,4 @@
-# ftp-scoring-web-client
+# ftc-scoring-web-client
 
 To do
 - when highlighting found teams, embolden the found team number (currently only highlights the row the team is in)
