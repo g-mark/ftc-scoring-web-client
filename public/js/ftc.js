@@ -287,10 +287,15 @@ FTC.prototype = {
 					if ( day !== '' ) {
 						html += '</tbody></table>';
 					}
-					html += '<h4>' + this.days[match.day] + '</h4>';
+					day = match.day;
+					if ( typeof day === 'string' && typeof this.days[match.day] === 'string' ) {
+						html += '<h4>' + this.days[match.day] + '</h4>';
+					}
+					else {
+						html += '<h4>&nbsp;</h4>';
+					}
 					emitHeader();
 					html += '<tbody>';
-					day = match.day;
 				}
 				var trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
 				if ( match.teamNums.includes(this.searchTeam) ) {
