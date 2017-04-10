@@ -397,10 +397,17 @@ FTC.prototype = {
 					html += ' team-highlight';
 				}
 				html += '">';
-				html += '<td>' + (team.rank || '&nbsp;') + '</td>';
-				html += '<td><ul class="team-combo"><li>' + (team.teamNum || '&nbsp;') + '</li><li>' + (team.name || '&nbsp;') + '</li></ul></td>';
-				html += '<td>' + (team.qualityPts || '') + '</td><td>' + (team.rankingPts || '') + '</td><td>' + (team.highest || '') + '</td>';
-				html += '<td>' + (team.matchesPlayed || '') + '</td>';
+				if ( typeof team.rank === 'number' ) {
+					html += '<td>' + team.rank + '</td>';
+					html += '<td><ul class="team-combo"><li>' + team.teamNum + '</li><li>' + team.name + '</li></ul></td>';
+					html += '<td>' + team.qualityPts + '</td><td>' + team.rankingPts + '</td><td>' + team.highest + '</td>';
+					html += '<td>' + team.matchesPlayed + '</td>';
+				}
+				else {
+					html += '<td>&nbsp;</td>';
+					html += '<td><ul class="team-combo"><li>' + (team.teamNum || '&nbsp;') + '</li><li>' + (team.name || '&nbsp;') + '</li></ul></td>';
+					html += '<td></td><td></td><td></td><td></td>';
+				}
 				html += '</tr>';
 			}
 		}
@@ -624,12 +631,12 @@ FTC.prototype = {
 				html +=  '<p>' + team.school + '<br>' + (team.city || '') + ', ' + (team.state || '') + ' ' + (team.country || '') + '</p>';
 			}
 
-			if ( team.rank ) {
+			if ( typeof team.rank === 'number' ) {
 				html += '<table class="details">';
-				html += '<tr><td>Rank</td><td>' + (team.rank || '&nbsp;') + '</td></tr>';
-				html += '<tr><td>Quality Pts</td><td>' + (team.qualityPts || '&nbsp;') + '</td></tr>';
-				html += '<tr><td>Ranking Pts</td><td>' + (team.rankingPts || '&nbsp;') + '</td></tr>';
-				html += '<tr><td>Matches Played</td><td>' + (team.matchesPlayed || '&nbsp;') + '</td></tr>';
+				html += '<tr><td>Rank</td><td>' + team.rank + '</td></tr>';
+				html += '<tr><td>Quality Pts</td><td>' + team.qualityPts + '</td></tr>';
+				html += '<tr><td>Ranking Pts</td><td>' + team.rankingPts + '</td></tr>';
+				html += '<tr><td>Matches Played</td><td>' + team.matchesPlayed + '</td></tr>';
 				html += '</table>';
 			}
 
