@@ -455,7 +455,7 @@ FTC.prototype = {
 				}
 				html += '">';
 				html += '<td>' + team.teamNum + '</td><td>' + (team.name || '') + '</td>';//<td>' + (team.school || '') + '</td>';
-				html += '<td>' + (team.city || '') + ' ' + (team.state || '') + ' ' + (team.country || '') + '</td>';
+				html += '<td>' + (team.city || '') + ', ' + (team.state || '') + ' ' + (team.country || '') + '</td>';
 				html += '<td><a class="info">i</a></td>';
 				html += '</tr>';
 			}
