@@ -9,8 +9,8 @@
  * Where the data is loaded from is determined by the js/config.js file.
  */
 
-var FTC = function() {
-	this.init();
+var FTC = function( configFilePath ) {
+	this.init( configFilePath );
 }
 
 FTC.prototype = {
@@ -20,9 +20,10 @@ FTC.prototype = {
 	 *
 	 * initializes everything
 	 */
-	init: function() {
+	init: function( configFilePath ) {
 		var self = this;
 		
+		this.configFilePath = configFilePath || 'js/config.json';
 		this.refreshInterval = 5 * 60 * 1000;	// interval between data refresh
 		this.configModified = '';
 		this.configId = 0;
@@ -86,7 +87,7 @@ FTC.prototype = {
 		var self = this;
 		self.loading( true );
 		$.ajax({
-			url: 'js/config.json?r=' + new Date().getTime(),
+			url: self.configFilePath + '?r=' + new Date().getTime(),
 			success: function(data, ststus, jqXHR) {
 				var modified = jqXHR.getResponseHeader("Last-Modified");
 				if ( modified != self.configModified ) {
@@ -1068,6 +1069,12 @@ if (!String.prototype.trim) {
 
 
 $(document).ready(function(){
+	/**
+	 * you can specify a config file here, if you like
+	 *	(path is relative to the html file)
+	 * e.g.:
+	 *	var ftc = new FTC( 'sample-data/data-fake-just-started-config-with-teams.json' );
+	 */
 	var ftc = new FTC();
 });
 
