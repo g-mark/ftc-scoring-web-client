@@ -590,18 +590,21 @@ FTC.prototype = {
 			html +=  '<td class="red rpad"><ul class="teams vert t' + match.red.teams.length + '"><li><strong>' + match.red.teams.join('</strong></li><li><strong>') + '</strong></li></ul></td>';
 			html +=  '<td class="blue rpad"><ul class="teams vert t' + match.blue.teams.length + '"><li><strong>' + match.blue.teams.join('</strong></li><li><strong>') + '</strong></li></ul></td>';
 			html +=  '</tr>';
-			html +=  '<tr><td>Total Score</td><td class="red rpad">' + (match.red.total || '') + '</td><td class="blue rpad">' + (match.blue.total || '') + '</td></tr>';
-			html +=  '<tr><td>Autonomous</td><td class="red rpad">' + (match.red.auto || '') + '</td><td class="blue rpad">' + (match.blue.auto || '') + '</td></tr>';
-			html +=  '<tr><td>Auto Bonus</td><td class="red rpad">' + (match.red.autob || '') + '</td><td class="blue rpad">' + (match.blue.autob || '') + '</td></tr>';
-			html +=  '<tr><td>Tele-Op</td><td class="red rpad">' + (match.red.tele || '') + '</td><td class="blue rpad">' + (match.blue.tele || '') + '</td></tr>';
-			html +=  '<tr><td>End Game</td><td class="red rpad">' + (match.red.end || '') + '</td><td class="blue rpad">' + (match.blue.end || '') + '</td></tr>';
-			html +=  '<tr><td>Penalties</td><td class="red rpad">' + (match.red.pen || '') + '</td><td class="blue rpad">' + (match.blue.pen || '') + '</td></tr>';
+			if ( typeof match.red.total === 'number' ) {
+				html +=  '<tr><td>Total Score</td><td class="red rpad">' + match.red.total + '</td><td class="blue rpad">' + match.blue.total + '</td></tr>';
+				html +=  '<tr><td>Autonomous</td><td class="red rpad">' + match.red.auto + '</td><td class="blue rpad">' + match.blue.auto + '</td></tr>';
+				html +=  '<tr><td>Auto Bonus</td><td class="red rpad">' + match.red.autob + '</td><td class="blue rpad">' + match.blue.autob + '</td></tr>';
+				html +=  '<tr><td>Tele-Op</td><td class="red rpad">' + match.red.tele + '</td><td class="blue rpad">' + match.blue.tele + '</td></tr>';
+				html +=  '<tr><td>End Game</td><td class="red rpad">' + match.red.end + '</td><td class="blue rpad">' + match.blue.end + '</td></tr>';
+				html +=  '<tr><td>Penalties</td><td class="red rpad">' + match.red.pen + '</td><td class="blue rpad">' + match.blue.pen + '</td></tr>';
+			}
 			html +=  '</table>';
 			if ( match.surrogates.length > 0 ) {
 				html += '<p><strong>Note:</strong> * Indicates a surrogate match.  Those matches do NOT count in the rankings</p>';
 			}
 			html += '</div>';
-			$('#detail-box').html( html );
+			
+			$('#detail-box').removeClass('team').html( html );
 			
 			$('#detail-back').addClass( 'visible' );
 		}
@@ -660,7 +663,7 @@ FTC.prototype = {
 			html +=  '<p><strong>Note:</strong> * Indicates a surrogate match.  Those matches do NOT count in the rankings</p>';
 			html += '</div>'
 
-			$('#detail-box').html( html );
+			$('#detail-box').addClass('team').html( html );
 			
 			$('#detail-back').addClass( 'visible' );
 		}
