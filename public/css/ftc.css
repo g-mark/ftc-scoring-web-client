@@ -471,14 +471,15 @@ footer {
 
 	#detail-box {
 		position: relative;
-		width: 500px;
+		width: calc(100% - 1em);
+		max-width: 500px;
 		margin: 2em auto;
 		max-height: calc(100% - 4em);
 		background-color: #fff;
 		border: 2px solid #444;
 		color: #000;
 		padding: 0 0 0.75em 0;
-
+		opacity: 0;
 		
 		display: -moz-flex;
 		display: -webkit-flex;
@@ -491,10 +492,10 @@ footer {
 		flex-direction: column;
 		
 
-		-moz-transition: -moz-transform 0.25s ease;
-		-webkit-transition: -webkit-transform 0.25s ease;
-		-ms-transition: -ms-transform 0.25s ease;
-		transition: transform 0.25s ease;
+		-moz-transition: opacity 0.25s, -moz-transform 0.25s ease;
+		-webkit-transition: opacity 0.25s, -webkit-transform 0.25s ease;
+		-ms-transition: opacity 0.25s, -ms-transform 0.25s ease;
+		transition: opacity 0.25s, transform 0.25s ease;
 		-moz-transform: translateY(-30em);
 		-webkit-transform: translateY(-30em);
 		-ms-transform: translateY(-30em);
@@ -505,6 +506,7 @@ footer {
 			-webkit-transform: translateY(0);
 			-ms-transform: translateY(0);
 			transform: translateY(0);
+			opacity: 1;
 		}
 
 		.detail-header {
@@ -602,7 +604,6 @@ footer {
 
 
 	#detail-box {
-		width: 300px;
 		margin: 0.5em auto;
 		max-height: calc(100% - 1em);
 	}
