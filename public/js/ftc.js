@@ -220,10 +220,9 @@ FTC.prototype = {
 		
 		if ( which.indexOf('-') !== -1 ) {
 			var split = which.split("-");
-			this.division = split[0];
+			this.division = parseInt(split[0]);
 			if ( typeof this.data === 'undefined'
-					|| typeof this.data.divisions !== 'object'
-					|| typeof this.data.divisions[this.division] !== 'object' ) {
+					|| typeof this.data[this.division] !== 'object' ) {
 				this.division = 0;
 			}
 			this.showing = split[1];
