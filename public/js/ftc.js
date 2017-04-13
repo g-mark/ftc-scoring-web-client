@@ -96,7 +96,7 @@ FTC.prototype = {
 					self.configId += 1;
 
 					self.data = [];
-					for ( var n = 0; n < data.divisions.length && n < 2; n++ ) {
+					for ( var n = 0; n < data.divisions.length && n < 3; n++ ) {
 						var division = data.divisions[n];
 						for ( var k in division.sources ) {
 							division.sources[k] = {
@@ -113,17 +113,24 @@ FTC.prototype = {
 						window.title = data.name;
 					}
 
-					if ( data.divisions.length === 2 ) {
+					if ( data.divisions.length === 2 || data.divisions.length === 3 ) {
 						var html = '';
-						for ( var n = 0; n < 2; n++ ) {
+						for ( var n = 0; n < data.divisions.length; n++ ) {
 							var division = data.divisions[n];
 							html += '<li><a href="#" id="division-' + n + '">' + division.name + '</a></il>';
 						}
-						$('ul.divisions').html( html );
+						var $divisions = $('ul.divisions');
+						$divisions.html( html );
+						if ( data.divisions.length === 3 ) {
+							$divisions.addClass( 'finals' );
+						}
+						else {
+							$divisions.removeClass( 'finals' );
+						}
 					}
 					else {
 						if ( typeof(data.name) === 'string' && data.name.length > 0 ) {
-							$('ul.divisions').html( '<h3>' + data.name + '</h3>' );
+							$('ul.divisions').removeClass( 'finals' ).html( '<h3>' + data.name + '</h3>' );
 						}
 						else {
 							$('body').addClass('nodivisions');
@@ -441,30 +448,67 @@ FTC.prototype = {
 		html += '<thead><tr><th class="sort" data-type="num" data-field="teamNum">Number</th>';
 		html += '<th data-type="str" data-field="name">Name</th>' + /*'<th>School</th>*/ '<th data-type="str" data-field="city">Location</th><th>&nbsp;</th></tr></thead>';
 		html += '<tbody>';
-		if ( typeof data === 'object' && typeof data.teams === 'object' ) {
-			var list = [];
-			for ( var k in data.teams ) {
-				list.push( data.teams[k] );
-			}
-			list = list.sort(function(a, b) {
-				var atype = typeof a.teamNum;
-				var btype = typeof b.teamNum;
-				if ( atype === 'number' && btype === 'number' ) { return a.teamNum - b.teamNum; }
-				if ( atype === 'number' ) { return -1; }
-				if ( btype === 'number' ) { return 1; }
-				return 0;
-			});
-			for ( var k in list ) {
-				var team = list[k];
-				html += '<tr id="row' + team.teamNum + '" data-num="' + team.teamNum + '" class="tr' + team.teamNum;
-				if ( typeof(this.searchTeam) === 'string' && team.teamNum == self.searchTeam ) {
-					html += ' team-highlight';
+		
+		if ( typeof data === 'object' ) {
+			
+			// if this is the finals division (this.division === 2), construct the teams list using
+			//	the data from the other divisions:
+			if ( this.division === 2 && typeof data.teams !== 'object' && typeof data.matchList === 'object' ) {
+				if ( this.data[0].data && this.data[0].data.teams && this.data[1].data && this.data[1].data.teams ) {
+					data.teams = {};
+					var div0teams = this.data[0].data.teams;
+					var div1teams = this.data[1].data.teams;
+					for ( var k in data.matches ) {
+						var match = data.matches[k];
+						var teams = match.red.teams.concat( match.blue.teams ).map( function (t) { return t.trim().replace('*', ''); } );
+						for ( var t = 0; t < teams.length; t++ ) {
+							var num = teams[t];
+							data.teams[num] = data.teams[num] || {};
+							var team = data.teams[num];
+							var temp;
+							if ( typeof div0teams[num] === 'object' ) {
+								temp = div0teams[ num ];
+							}
+							else if ( typeof div1teams[num] === 'object' ) {
+								temp = div1teams[ num ];
+							}
+							if ( temp ) {
+								team.name = temp.name;
+								team.teamNum = temp.teamNum;
+								team.school = temp.school;
+								team.city = temp.city;
+								team.state = temp.state;
+								team.country = temp.country;
+							}
+						}
+					}
 				}
-				html += '">';
-				html += '<td>' + team.teamNum + '</td><td>' + (team.name || '') + '</td>';//<td>' + (team.school || '') + '</td>';
-				html += '<td>' + (team.city || '') + ', ' + (team.state || '') + ' ' + (team.country || '') + '</td>';
-				html += '<td><a class="info">i</a></td>';
-				html += '</tr>';
+			}
+			if ( typeof data.teams === 'object' ) {
+				var list = [];
+				for ( var k in data.teams ) {
+					list.push( data.teams[k] );
+				}
+				list = list.sort(function(a, b) {
+					var atype = typeof a.teamNum;
+					var btype = typeof b.teamNum;
+					if ( atype === 'number' && btype === 'number' ) { return a.teamNum - b.teamNum; }
+					if ( atype === 'number' ) { return -1; }
+					if ( btype === 'number' ) { return 1; }
+					return 0;
+				});
+				for ( var k in list ) {
+					var team = list[k];
+					html += '<tr id="row' + team.teamNum + '" data-num="' + team.teamNum + '" class="tr' + team.teamNum;
+					if ( typeof(this.searchTeam) === 'string' && team.teamNum == self.searchTeam ) {
+						html += ' team-highlight';
+					}
+					html += '">';
+					html += '<td>' + team.teamNum + '</td><td>' + (team.name || '') + '</td>';//<td>' + (team.school || '') + '</td>';
+					html += '<td>' + (team.city || '') + ', ' + (team.state || '') + ' ' + (team.country || '') + '</td>';
+					html += '<td><a class="info">i</a></td>';
+					html += '</tr>';
+				}
 			}
 		}
 		html += '</tbody></table>';

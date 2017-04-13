@@ -125,6 +125,10 @@ header {
 		width: 166px;
 		text-transform: uppercase;
 	}
+		nav .divisions.finals a {
+			width: 110px;
+		}
+		
 	nav .divisions h3 {
 		text-align: left;
 		color: #F57F26;
@@ -153,7 +157,8 @@ header {
 		nav .divisions h3 { text-align: center; }
 		nav a:link, nav a:visited { display: block; }
 		nav .divisions li { width: 50%; }
-		nav .divisions a { width: auto; }
+		nav .divisions.finals li { width: 33.333%; }
+		nav .divisions a, nav .divisions.finals a { width: auto; }
 		nav .types li { width: 25%; }
 		nav .types a { width: auto; }
 	}
