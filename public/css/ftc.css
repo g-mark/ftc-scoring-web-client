@@ -183,6 +183,9 @@ header {
 	border: none;
 	font-size: 0.8em;
 	padding: 1em;
+	max-height: calc(100% - 44px);
+	overflow-x: hidden;
+	overflow-y: auto;
 
 	visibility: hidden;
 	-moz-transition: -moz-transform 0.25s ease, box-shadow 0.25s ease, visibility 0.25s;
