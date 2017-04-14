@@ -81,6 +81,29 @@ The `ftc-scoring-web-client` uses the Match List, Rankings, Match Results with D
       ]
     }
 
+### Dual Division Final Matches
+When a both divisions have found a winner, and the event is in its final matches, you can show the Finals matches in a third tab, alongside the two division tabs.  To do this, add a third "Finals" division to the config.json file, in the "divisions" array:
+
+    {
+      "name": "",
+      "divisions": [
+        {
+          ... first division config
+        },
+        {
+          ... second division config
+        },
+        {
+          "name":"Finals",
+          "sources": {
+            "details":"cache/MatchResultsDetails_My_Event_Finals.html"
+          }
+        }
+      ]
+    }
+
+The  only essential file for the finals is the "MatchResultsDetails_" html file - as shown above.  The team info is pulled from the two divisions' "TeamInfo_" html files.
+
 ## To do
 - when highlighting found teams, embolden the found team number (currently only highlights the row the team is in)
 - explain how to configure & deploy
