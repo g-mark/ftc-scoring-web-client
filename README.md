@@ -106,5 +106,5 @@ The  only essential file for the finals is the "MatchResultsDetails_" html file 
 
 ## To do
 - when highlighting found teams, embolden the found team number (currently only highlights the row the team is in)
-- explain how to configure & deploy
+- when an overlay is shown, make the body not scrollable
 - convert inline html creation with templates
