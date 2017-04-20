@@ -308,9 +308,12 @@ FTC.prototype = {
 					}
 					emitHeader();
 				}
-				var trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
-				if ( typeof(this.searchTeam) === 'string' && match.teamNums.includes(this.searchTeam) ) {
-					trClasses += ' team-highlight';
+				var trClasses = '';
+				if ( typeof match.red === 'object' && typeof match.red.teams === 'object' ) {
+					trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
+					if ( typeof(this.searchTeam) === 'string' && match.teamNums.includes(this.searchTeam) ) {
+						trClasses += ' team-highlight';
+					}
 				}
 				html += '<tr class="' + trClasses + '">';
 				html += '<td>' + match.num + '</td>';
@@ -378,9 +381,12 @@ FTC.prototype = {
 				}
 
 				var className = match.winner === 'B' ? 'blue-won' : (match.winner === 'R' ? 'red-won' : 'tie');
-				var trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
-				if ( typeof(this.searchTeam) === 'string' && match.teamNums.includes(self.searchTeam) ) {
-					trClasses += ' team-highlight';
+				var trClasses = '';
+				if ( typeof match.red === 'object' && typeof match.red.teams === 'object' ) {
+					match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
+					if ( typeof(this.searchTeam) === 'string' && match.teamNums.includes(self.searchTeam) ) {
+						trClasses += ' team-highlight';
+					}
 				}
 				html += '<tr data-num="' + match.num + '" class="' + trClasses + '">';
 				html += '<td>' + match.num + '</td>';
@@ -844,6 +850,7 @@ FTC.prototype = {
 		// put the retrieved data in the division object:
 		division.data = division.data || {};
 		division.data.matches = division.data.matches || {};
+		division.data.matchList = division.data.matchList || [];
 		
 		division.data.matchesHaveTime = (timeCol >= 0);
 		division.data.matchesHaveField = (fieldCol >= 0);
@@ -858,8 +865,10 @@ FTC.prototype = {
 				matchNum = 'Q-' + matchNum;
 			}
 			if ( typeof matchNum === 'string' ) {
+				var newMatch = false;
 				if ( typeof division.data.matches[matchNum] !== 'object' ) {
-					division.data.matches[matchNum] = {}
+					division.data.matches[matchNum] = {};
+					newMatch = true;
 				};
 				var match = division.data.matches[matchNum];
 				if ( timeCol >= 0 ) {
@@ -897,6 +906,9 @@ FTC.prototype = {
 				match.surrogates = surr
 									.filter( function(v){ return (v || '').indexOf('*') !== -1; } )
 									.map( function(v) { return (v || '').trim().replace('*', ''); } );
+				if ( newMatch ) {
+					division.data.matchList.push( matchNum );
+				}
 			}
 		}
 
@@ -924,8 +936,10 @@ FTC.prototype = {
 			//	all the other stuff is taken from the 
 			if ( row.length === 16 ) {
 				var matchNum = row[0];
+				var newMatch = false;
 				if ( typeof division.data.matches[matchNum] !== 'object' ) {
-					division.data.matches[matchNum] = {}
+					division.data.matches[matchNum] = {};
+					newMatch = true;
 				};
 				var match = division.data.matches[matchNum];
 
@@ -956,7 +970,9 @@ FTC.prototype = {
 										.filter( function(v){ return v.indexOf('*') !== -1; } )
 										.map( function(v) { return v.trim().replace('*', ''); } );
 				}
-				division.data.matchList.push( matchNum );
+				if ( newMatch ) {
+					division.data.matchList.push( matchNum );
+				}
 			}
 		}
 
