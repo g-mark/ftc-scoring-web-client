@@ -104,6 +104,21 @@ When a both divisions have found a winner, and the event is in its final matches
 
 The  only essential file for the finals is the "MatchResultsDetails_" html file - as shown above.  The team info is pulled from the two divisions' "TeamInfo_" html files.
 
+## Pushing Hotfixes
+There is an extra field in the `config.json` file that can be used to push a hot fix to users that may currently have the scoring-client app open:
+
+    "jsv": 123
+
+If you change this value, then the next time the client looks for fresh data (every 5 minutes), it will force the web browser to reload the page.  If you need to do this (say if you find a bug in the `ftc.js` file), then it would also be agood idea to add a query parameter in the `index.html` file to the `<script>` tag.  So change this:
+
+    <script src="js/ftc.js" type="text/javascript"></script>
+
+to something like this:
+
+    <script src="js/ftc.js?v=1" type="text/javascript"></script>
+
+This way, when the html file reloads, the url to the javascript file will look different to the browser, which forces it to not use a cached version.
+
 ## To do
 - when highlighting found teams, embolden the found team number (currently only highlights the row the team is in)
 - when an overlay is shown, make the body not scrollable
