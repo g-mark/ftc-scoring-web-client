@@ -95,6 +95,12 @@ FTC.prototype = {
 					self.configModified = modified;
 					self.configId += 1;
 
+					if ( typeof self.configJsv !== 'undefined' && typeof data.jsv !== 'undefined' && self.configJsv != data.jsv ) {
+						window.location.reload( true );
+						return;
+					}
+					self.configJsv = data.jsv
+
 					self.data = [];
 					for ( var n = 0; n < data.divisions.length && n < 3; n++ ) {
 						var division = data.divisions[n];
