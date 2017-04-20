@@ -275,6 +275,7 @@ FTC.prototype = {
 				html += '<th>Field</th>';
 			}
 			html += '<th>Red Teams</th><th>Blue Teams</th></tr></thead>';
+			html += '<tbody>';
 		};
 
 		if ( typeof data === 'object' && typeof data.matchList === 'object' ) {
@@ -282,7 +283,6 @@ FTC.prototype = {
 
 			if ( !data.matchesHaveTime ) {
 				emitHeader();
-				html += '<tbody>';
 			}
 
 			for ( var n = 0; n < data.matchList.length; n++ ) {
@@ -301,7 +301,6 @@ FTC.prototype = {
 						html += '<h4>&nbsp;</h4>';
 					}
 					emitHeader();
-					html += '<tbody>';
 				}
 				var trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
 				if ( typeof(this.searchTeam) === 'string' && match.teamNums.includes(this.searchTeam) ) {
@@ -320,6 +319,9 @@ FTC.prototype = {
 				html += '</tr>';
 			}
 		}
+		else {
+			emitHeader();
+		}
 		html += '</tbody></table>';
 		html += '<p><strong>Note:</strong> * Indicates a surrogate match.  Those matches do NOT count in the rankings</p>';
 
@@ -336,13 +338,39 @@ FTC.prototype = {
 
 		var data = this.data[ this.division ].data;
 
-		var html = '<table class="results">';
-		html += '<thead><tr><th>Match</th><th>Result</th><th>Red</th><th>Blue</th><th>&nbsp;</th></tr></thead>';
-		html += '<tbody>';
+		var html = '';
+
+		var emitHeader = function() {
+			html += '<table class="results">';
+			html += '<thead><tr><th>Match</th><th>Result</th><th>Red</th><th>Blue</th><th>&nbsp;</th></tr></thead>';
+			html += '<tbody>';
+		};
+
 		if ( typeof data === 'object' && typeof data.matchList === 'object' ) {
+			var day = '';
+
+			if ( !data.matchesHaveTime ) {
+				emitHeader();
+			}
+
 			for ( var n = 0; n < data.matchList.length; n++ ) {
 				var matchNum = data.matchList[n];
 				var match = data.matches[matchNum];
+
+				if ( data.matchesHaveTime && match.day != day ) {
+					if ( day !== '' ) {
+						html += '</tbody></table>';
+					}
+					day = match.day;
+					if ( typeof day === 'string' && typeof this.days[match.day] === 'string' ) {
+						html += '<h4>' + this.days[match.day] + '</h4>';
+					}
+					else {
+						html += '<h4>&nbsp;</h4>';
+					}
+					emitHeader();
+				}
+
 				var className = match.winner === 'B' ? 'blue-won' : (match.winner === 'R' ? 'red-won' : 'tie');
 				var trClasses = match.red.teams.concat( match.blue.teams ).map( function (t){ return 'tr' + t.trim().replace('*', '');} ).join( ' ' );
 				if ( typeof(this.searchTeam) === 'string' && match.teamNums.includes(self.searchTeam) ) {
@@ -356,6 +384,9 @@ FTC.prototype = {
 				html += '<td><a class="info">i</a></td>';
 				html += '</tr>';
 			}
+		}
+		else {
+			emitHeader();
 		}
 		html += '</tbody></table>';
 		html += '<p><strong>Note:</strong> * Indicates a surrogate match.  Those matches do NOT count in the rankings</p>';
@@ -801,9 +832,8 @@ FTC.prototype = {
 		while ( data.header[redCol2 + 1].indexOf('Red') !== -1 ) {
 			redCol2 += 1;
 		}
-		blueCol1 = redCol1 + 1;
+		blueCol1 = redCol2 + 1;
 		blueCol2 = data.header.length - 1;
-		//TODO: 
 
 		// put the retrieved data in the division object:
 		division.data = division.data || {};
