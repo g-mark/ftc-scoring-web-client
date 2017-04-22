@@ -323,8 +323,14 @@ FTC.prototype = {
 				if ( data.matchesHaveField ) {
 					html += '<td>' + (match.field || '') + '</td>';
 				}
-				html += '<td class="red"><ul class="teams t' + match.red.teams.length + '"><li>' + match.red.teams.join('</li><li>') + '</li></ul></td>';
-				html += '<td class="blue"><ul class="teams t' + match.blue.teams.length + '"><li>' + match.blue.teams.join('</li><li>') + '</li></ul></td>';
+				if ( typeof match.red === 'object' && typeof match.red.teams === 'object' ) {
+					html += '<td class="red"><ul class="teams t' + match.red.teams.length + '"><li>' + match.red.teams.join('</li><li>') + '</li></ul></td>';
+					html += '<td class="blue"><ul class="teams t' + match.blue.teams.length + '"><li>' + match.blue.teams.join('</li><li>') + '</li></ul></td>';
+				}
+				else {
+					html += '<td class="red"></td>';
+					html += '<td class="blue"></td>';
+				}
 				html += '</tr>';
 			}
 		}
@@ -391,8 +397,15 @@ FTC.prototype = {
 				html += '<tr data-num="' + match.num + '" class="' + trClasses + '">';
 				html += '<td>' + match.num + '</td>';
 				html += '<td class="' + className + '">' + match.result + '</td>';
-				html += '<td class="red"><ul class="teams vert t' + match.red.teams.length + '"><li>' + match.red.teams.join('</li><li>') + '</li></ul></td>';
-				html += '<td class="blue"><ul class="teams vert t' + match.blue.teams.length + '"><li>' + match.blue.teams.join('</li><li>') + '</li></ul></td>';
+				if ( typeof match.red === 'object' && typeof match.red.teams === 'object' ) {
+					html += '<td class="red"><ul class="teams t' + match.red.teams.length + '"><li>' + match.red.teams.join('</li><li>') + '</li></ul></td>';
+					html += '<td class="blue"><ul class="teams t' + match.blue.teams.length + '"><li>' + match.blue.teams.join('</li><li>') + '</li></ul></td>';
+				}
+				else {
+					html += '<td class="red"></td>';
+					html += '<td class="blue"></td>';
+				}
+
 				html += '<td><a class="info">i</a></td>';
 				html += '</tr>';
 			}
