@@ -749,7 +749,7 @@ FTC.prototype = {
 				for ( var n = 0; n < division.data.matchList.length; n++ ) {
 					var matchNum = division.data.matchList[n];
 					var match = division.data.matches[matchNum];
-					if ( match.red.teams.includes(num) || match.blue.teams.includes(num) ) {
+					if ( typeof match.red.total === 'number' && (match.red.teams.includes(num) || match.blue.teams.includes(num)) ) {
 						html += '<tr>';
 						html += '<td class="' + (match.winner||'').toLowerCase() +'won">' + match.num + '</td>';
 						html += '<td class="red"><ul class="teams vert t' + match.red.teams.length + '"><li>' + match.red.teams.map(function(v){return (v===num)?'<b>'+num+'</b>':v;}).join('</li><li>') + '</li></ul></td>';
