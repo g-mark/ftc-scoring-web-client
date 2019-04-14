@@ -831,6 +831,9 @@ FTC.prototype = {
 		if ( typeof division !== 'object') {
 			return;
 		}
+		if ( data.header.length === 0 ) {
+			return;
+		}
 
 		// figure out which column for ech data type:
 		var matchCol = 0;
@@ -1008,7 +1011,7 @@ FTC.prototype = {
 		division.data.teams = division.data.teams || {};
 		for ( var n = 0; n < data.rows.length; n++ ) {
 			var row = data.rows[n];
-			if ( row.length === 6 ) {
+			if ( row.length >= 5 ) {
 				var teamNum = row[0];
 				if ( typeof division.data.teams[teamNum] !== 'object' ) {
 					division.data.teams[teamNum] = {}
@@ -1019,7 +1022,12 @@ FTC.prototype = {
 				team.school = row[2];
 				team.city = row[3];
 				team.state = row[4];
-				team.country = row[5];
+				if (row.length >= 6) {
+					team.country = row[5];
+				}
+				else {
+					team.country = "";
+				}
 			}
 		}
 
@@ -1098,26 +1106,28 @@ FTC.prototype = {
 				if ( modified !== source.modified ) {
 					source.modified = modified;
 
-					var footer = data.replace( /[\s\S]*<\/TABLE><\/DIV>([\s\S]+)<\/HTML>/g, '$1');
-					var table = data.replace( /[\s\S]*<DIV ALIGN=CENTER><TABLE([\s\S]+)<\/TABLE><\/DIV>([\s\S]+)<\/HTML>/g, '<TABLE$1</TABLE>');
+					var footer = data.replace(/[\s\S]*<\/table>([\s\S]+)<\/html>/gi, '$1');
+					var table = data.replace(/[\s\S]*<table([\s\S]+)<\/table>[\s\S]+/gi, '<table$1</table>');
 					
 					var header = [];
-					var thr = table.match( /<TR[^>]*><TH[\s\S]+?<\/TR>/gi );
-					if ( thr && thr.length === 1 ) {
-						header = thr[0].replace( /<TR[^>]*>\s*<TH[^>]*>\s*/i, '')
-								  .replace( /<\/TH><\/TR>/i, '' )
+					var thead = table.replace(/[\s\S]*<thead>([\s\S]+)<\/thead>[\s\S]*/gi, '$1');
+					var thr = thead.match( /<tr[^>]*>\s*<th[\s\S]+?<\/tr>/gi );
+					if ( thr && thr.length >= 1 ) {
+						header = thr[thr.length - 1].replace( /<tr[^>]*>\s*<th[^>]*>\s*/i, '')
+								  .replace( /<\/th>\s*<\/tr>/i, '' )
 								  .replace( '&nbsp;', ' ' )
-								  .split( /(?:<\/TH>){0,1}\s*<TH[^>]*>\s*/i );
+								  .split( /(?:<\/th>){0,1}\s*<th[^>]*>\s*/i );
 					}
 
 					var rows = [];
-					var tr = table.match( /<TR[^>]*><TD[\s\S]+?<\/TR>/gi );
+					var tbody = table.replace(/[\s\S]*<tbody>([\s\S]+)<\/tbody>[\s\S]*/gi, '$1');
+					var tr = tbody.match( /<tr[^>]*>\s*<td[\s\S]+?<\/tr>/gi );
 					if ( tr && tr.length > 0 ) {
 						var rows = tr.map(function(row) {
-							return row.replace( /<TR[^>]*>\s*<TD[^>]*>\s*/i, '')
-									  .replace( /<\/TD><\/TR>/i, '' )
+							return row.replace( /<tr[^>]*>\s*<td[^>]*>\s*/i, '')
+									  .replace( /<\/td>\s*<\/tr>/i, '' )
 									  .replace( '&nbsp;', ' ' )
-									  .split( /(?:<\/TD>){0,1}\s*<TD[^>]*>\s*/i );
+									  .split( /(?:<\/td>){0,1}\s*<td[^>]*>\s*/i );
 						});
 					}
 
