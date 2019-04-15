@@ -436,8 +436,8 @@ FTC.prototype = {
 		var html = '<table class="rankings sortable">';
 		html += '<thead><tr><th class="sort up" data-type="num" data-field="rank">Rank</th>';
 		html += '<th data-type="num" data-field="teamNum">Team</th>';
-		html += '<th data-type="num" data-field="qualityPts" data-order="dn">QP</th><th data-type="num" data-field="rankingPts" data-order="dn">RP</th>';
-		html += '<th data-type="num" data-field="highest" data-order="dn">Highest</th><th data-type="num" data-field="matchesPlayed" data-order="dn">Matches</th></tr></thead>';
+		html += '<th data-type="num" data-field="rankingPts" data-order="dn">RP</th><th data-type="num" data-field="tieBreakerPts" data-order="dn">TBP</th>';
+		html += '<th data-type="num" data-field="highest" data-order="dn">High</th><th data-type="num" data-field="matchesPlayed" data-order="dn">Matches</th></tr></thead>';
 		html += '<tbody>';
 		if ( typeof data === 'object' && typeof data.teams === 'object' ) {
 			var list = [];
@@ -462,13 +462,13 @@ FTC.prototype = {
 				if ( typeof team.rank === 'number' ) {
 					html += '<td>' + team.rank + '</td>';
 					html += '<td><ul class="team-combo"><li>' + team.teamNum + '</li><li>' + team.name + '</li></ul></td>';
-					html += '<td>' + team.qualityPts + '</td><td>' + team.rankingPts + '</td><td>' + team.highest + '</td>';
+					html += '<td>' + team.rankingPts + '</td><td>' + team.tieBreakerPts + '</td><td>' + team.highest + '</td>';
 					html += '<td>' + team.matchesPlayed + '</td>';
 				}
 				else {
 					html += '<td>&nbsp;</td>';
 					html += '<td><ul class="team-combo"><li>' + (team.teamNum || '&nbsp;') + '</li><li>' + (team.name || '&nbsp;') + '</li></ul></td>';
-					html += '<td></td><td></td><td></td><td></td>';
+					html += '<td></td><td></td><td></td><td>0</td>';
 				}
 				html += '</tr>';
 			}
@@ -686,16 +686,15 @@ FTC.prototype = {
 			html += '<div class="detail-body">';
 			html +=  '<table class="details"><tr><th>&nbsp;</th><th class="red">Red</th><th class="blue">Blue</th></tr>';
 			html +=  '<tr class="sep"><td>Teams</td>';
-			html +=  '<td class="red rpad"><ul class="teams vert t' + match.red.teams.length + '"><li><strong>' + match.red.teams.join('</strong></li><li><strong>') + '</strong></li></ul></td>';
-			html +=  '<td class="blue rpad"><ul class="teams vert t' + match.blue.teams.length + '"><li><strong>' + match.blue.teams.join('</strong></li><li><strong>') + '</strong></li></ul></td>';
+			html +=  '<td class="red rpad"><ul class="teams vert t' + match.red.teams.length + '"><li>' + match.red.teams.join('</li><li>') + '</li></ul></td>';
+			html +=  '<td class="blue rpad"><ul class="teams vert t' + match.blue.teams.length + '"><li>' + match.blue.teams.join('</li><li>') + '</li></ul></td>';
 			html +=  '</tr>';
 			if ( typeof match.red.total === 'number' ) {
-				html +=  '<tr><td>Total Score</td><td class="red rpad">' + match.red.total + '</td><td class="blue rpad">' + match.blue.total + '</td></tr>';
+				html +=  '<tr><td><strong>Total Score</td><td class="red rpad"><strong>' + match.red.total + '</strong></td><td class="blue rpad"><strong>' + match.blue.total + '</strong></td></tr>';
 				html +=  '<tr><td>Autonomous</td><td class="red rpad">' + match.red.auto + '</td><td class="blue rpad">' + match.blue.auto + '</td></tr>';
-				html +=  '<tr><td>Auto Bonus</td><td class="red rpad">' + match.red.autob + '</td><td class="blue rpad">' + match.blue.autob + '</td></tr>';
-				html +=  '<tr><td>Tele-Op</td><td class="red rpad">' + match.red.tele + '</td><td class="blue rpad">' + match.blue.tele + '</td></tr>';
+				html +=  '<tr><td>Driver Controlled</td><td class="red rpad">' + match.red.tele + '</td><td class="blue rpad">' + match.blue.tele + '</td></tr>';
 				html +=  '<tr><td>End Game</td><td class="red rpad">' + match.red.end + '</td><td class="blue rpad">' + match.blue.end + '</td></tr>';
-				html +=  '<tr><td>Penalties</td><td class="red rpad">' + match.red.pen + '</td><td class="blue rpad">' + match.blue.pen + '</td></tr>';
+				html +=  '<tr><td>Penalty</td><td class="red rpad">' + match.blue.pen + '</td><td class="blue rpad">' + match.red.pen + '</td></tr>';
 			}
 			html +=  '</table>';
 			if ( match.surrogates.length > 0 ) {
@@ -736,8 +735,9 @@ FTC.prototype = {
 			if ( typeof team.rank === 'number' ) {
 				html += '<table class="details">';
 				html += '<tr><td>Rank</td><td>' + team.rank + '</td></tr>';
-				html += '<tr><td>Quality Pts</td><td>' + team.qualityPts + '</td></tr>';
 				html += '<tr><td>Ranking Pts</td><td>' + team.rankingPts + '</td></tr>';
+				html += '<tr><td>Tie Breaker Pts</td><td>' + team.tieBreakerPts + '</td></tr>';
+				html += '<tr><td>Highest Score</td><td>' + team.highest + '</td></tr>';
 				html += '<tr><td>Matches Played</td><td>' + team.matchesPlayed + '</td></tr>';
 				html += '</table>';
 			}
@@ -877,6 +877,9 @@ FTC.prototype = {
 				continue;
 			}
 			var matchNum = row[ matchCol ];
+			if ( matchNum === '' ) {
+				continue;
+			}
 			if ( matchNum.indexOf('-') === -1 ) {
 				matchNum = 'Q-' + matchNum;
 			}
@@ -908,6 +911,7 @@ FTC.prototype = {
 				match.blue = match.blue || {};
 				match.red.teams = [];
 				match.blue.teams = [];
+				match.result = match.result || '';
 
 				var surr = [];
 				var num = (redCol2 - redCol1) + 1;
@@ -929,7 +933,7 @@ FTC.prototype = {
 		}
 
 		// if the user is currently viewing the data just loaded, then re-render it:
-		if ( self.selected === index + '-matches' ) {
+		if ( self.selected === index + '-matches' || self.selected === index + '-results' ) {
 			self.render();
 		}
 	},
@@ -1058,8 +1062,11 @@ FTC.prototype = {
 				var team = division.data.teams[teamNum];
 				team.teamNum = parseInt(teamNum);
 				team.rank = parseInt(row[0]);
-				team.qualityPts = parseInt(row[3]);
-				team.rankingPts = parseInt(row[4]);
+				if (isNaN(team.rank)) {
+					team.rank = '';
+				}
+				team.rankingPts = parseInt(row[3]);
+				team.tieBreakerPts = parseInt(row[4]);
 				team.highest = parseInt(row[5]);
 				team.matchesPlayed = parseInt(row[6]);
 			}
@@ -1356,6 +1363,8 @@ $(document).ready(function(){
 	 *	(path is relative to the html file)
 	 * e.g.:
 	 *	var ftc = new FTC( 'sample-data/data-fake-just-started-config-with-teams.json' );
+	 * If you don't specify a path, the the configuration will be loaded from:
+	 *	js/config.json
 	 */
 	var ftc = new FTC();
 });
